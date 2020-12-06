@@ -24,8 +24,8 @@ getReducer downStep rightStep (sum, pos) (rowIdx, row) =
         then posWithRightStep - width
         else posWithRightStep
 
-ride downStep rightStep matrix =
-  foldl (getReducer downStep rightStep) (0, 0) (enumerate matrix)
+countTrees downStep rightStep matrix =
+  fst $ foldl (getReducer downStep rightStep) (0, 0) (enumerate matrix)
 
 rideResults input = do
   putStrLn $ "Path D1R1 - " ++ show path11
@@ -37,11 +37,11 @@ rideResults input = do
 
   where
     matrix = toMatrix input
-    path11 = fst $ ride 1 1 matrix
-    path13 = fst $ ride 1 3 matrix
-    path15 = fst $ ride 1 5 matrix
-    path17 = fst $ ride 1 7 matrix
-    path21 = fst $ ride 2 1 matrix
+    path11 = countTrees 1 1 matrix
+    path13 = countTrees 1 3 matrix
+    path15 = countTrees 1 5 matrix
+    path17 = countTrees 1 7 matrix
+    path21 = countTrees 2 1 matrix
 
 main :: IO ()
 main = do

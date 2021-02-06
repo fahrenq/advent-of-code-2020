@@ -44,7 +44,7 @@ fn main() {
         .collect();
 
     let seat_ids_sorted: Vec<u32> = seat_ids.into_iter().sorted().collect();
-    let highest_seat_id = seat_ids_sorted.iter().rev().next().unwrap();
+    let highest_seat_id = seat_ids_sorted.iter().max().unwrap();
     let my_seat_id: u32 = seat_ids_sorted
         .iter()
         .tuple_windows::<(&u32, &u32)>()

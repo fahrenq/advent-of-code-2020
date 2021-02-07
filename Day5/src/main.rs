@@ -16,7 +16,7 @@ fn get_token(i: &char) -> Token {
     }
 }
 
-fn calculate(ub: u32, token: &String) -> u32 {
+fn calculate(ub: u32, token: &str) -> u32 {
     let init: Vec<u32> = (0..=ub).collect();
     token.chars().fold(init, |acc, i| match get_token(&i) {
         Token::UpperHalf => acc[acc.iter().count() / 2..].to_vec(),
@@ -24,20 +24,20 @@ fn calculate(ub: u32, token: &String) -> u32 {
     })[0]
 }
 
-fn row_substring(s: &String) -> String {
-    s[..7].to_string()
+fn row_substring(s: &str) -> &str {
+    &s[..7]
 }
 
-fn col_substring(s: &String) -> String {
-    s[7..].to_string()
+fn col_substring(s: &str) -> &str {
+    &s[7..]
 }
 
 fn main() {
     let seat_ids: Vec<u32> = include_str!("./input.txt")
         .lines()
         .map(|i| {
-            let row = calculate(ROW_UB, &row_substring(&i.to_string()));
-            let col = calculate(COL_UB, &col_substring(&i.to_string()));
+            let row = calculate(ROW_UB, row_substring(&i));
+            let col = calculate(COL_UB, col_substring(&i));
             (row, col)
         })
         .map(|(row, col)| row * 8 + col)

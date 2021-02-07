@@ -1,14 +1,14 @@
 use regex::Regex;
 
 #[derive(Debug, Clone)]
-struct Passport {
+struct Passport<'a> {
     byr: Option<u32>,
     iyr: Option<u32>,
     eyr: Option<u32>,
-    hgt: Option<String>,
-    hcl: Option<String>,
-    ecl: Option<String>,
-    pid: Option<String>,
+    hgt: Option<&'a str>,
+    hcl: Option<&'a str>,
+    ecl: Option<&'a str>,
+    pid: Option<&'a str>,
 }
 
 fn validate(p: &Passport) -> bool {
@@ -56,7 +56,7 @@ fn validate_part2(p: &Passport) -> bool {
     };
 
     let ecl = match &p.ecl {
-        Some(x) => match x.as_str() {
+        Some(x) => match *x {
             "amb" | "blu" | "brn" | "gry" | "grn" | "hzl" | "oth" => true,
             _ => false,
         },
@@ -74,31 +74,14 @@ fn validate_part2(p: &Passport) -> bool {
     byr && iyr && eyr && hgt && hcl && ecl && pid
 }
 
-fn try_find_value<T>(fields: &Vec<(&str, &str)>, key: &str) -> Option<T>
-where
-    T: std::str::FromStr,
-    <T as std::str::FromStr>::Err: std::fmt::Debug,
-{
-    let r = fields
+fn try_find_value<'a>(fields: &Vec<(&str, &'a str)>, key: &str) -> Option<&'a str> {
+    fields
         .iter()
         .find(|(k, _)| *k == key)
         .map(|(_, value)| *value)
-        .map(|x| {
-            x.parse::<T>().unwrap()
-            // let r = x.parse::<T>();
-            // if r.is_err() {
-            //     println!("Could not parse value {}", x)
-            // }
-            // r
-        });
-    r
-    // match r {
-    //     Some(Ok(i)) => Some(i),
-    //     _ => None,
-    // }
 }
 
-fn parse_passport(i: String) -> Passport {
+fn parse_passport(i: &str) -> Passport {
     let re = Regex::new(r"(byr|iyr|eyr|hgt|hcl|ecl|pid):\s*(\S+)(?:\s|\n|$)").unwrap();
 
     let fields: Vec<(&str, &str)> = re
@@ -106,9 +89,9 @@ fn parse_passport(i: String) -> Passport {
         .map(|x| (x.get(1).unwrap().as_str(), x.get(2).unwrap().as_str()))
         .collect();
 
-    let byr = try_find_value(&fields, "byr");
-    let iyr = try_find_value(&fields, "iyr");
-    let eyr = try_find_value(&fields, "eyr");
+    let byr = try_find_value(&fields, "byr").map(|x| x.parse::<u32>().unwrap());
+    let iyr = try_find_value(&fields, "iyr").map(|x| x.parse::<u32>().unwrap());
+    let eyr = try_find_value(&fields, "eyr").map(|x| x.parse::<u32>().unwrap());
     let hgt = try_find_value(&fields, "hgt");
     let hcl = try_find_value(&fields, "hcl");
     let ecl = try_find_value(&fields, "ecl");
@@ -129,11 +112,7 @@ fn parse_passport(i: String) -> Passport {
 
 fn main() {
     let input = include_str!("./input.txt");
-    let all_passports: Vec<Passport> = input
-        .split("\n\n")
-        .map(|i| i.to_string())
-        .map(parse_passport)
-        .collect();
+    let all_passports: Vec<Passport> = input.split("\n\n").map(parse_passport).collect();
     let valid_passports: Vec<Passport> = all_passports
         .iter()
         .filter(|a| validate(a))
